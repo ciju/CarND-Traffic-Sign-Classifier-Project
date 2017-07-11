@@ -55,9 +55,13 @@ statistics.
 
 #### 1. Describe how you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, and provide example images of the additional data. Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class, etc.)
 
+Decided to normalize image because it might help with better backprop works better with it. 
+
+From what I understand, normalization reduces oscillation in the and helps with better backprop convergence. 
+
 Used `tf.image.per_image_standardization` in the pipeline. Seems to
 have been sufficient from normalization perspective. No other
-augmentation was done.
+augmentation was done. 
 
 #### 2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
@@ -105,6 +109,19 @@ My final model results were:
 * validation set accuracy of 96%
 * test set accuracy of 95%
 
+
+Q: Why was this particular model chosen?
+A: Choose LeNet, mostly because that was the architecture we were introducted to. And because its built around (introduced?) convolutions, which are good at 'understanding' images.
+
+Q: Why did you think that this model would be an appropriate choice for this project?
+A: First, its a classification problem. Second, image problem. Third, the number of different properties is about the order of magnitude of what LeNet was designed for. Seemed like LeNet should be able to get the few extra percentage precisions needed (with dropout and input regularization). And it did.
+
+Q: What specific modifications were made from the original architecture? (If any)
+A: Two most important changes where to normalize input data (using `tf.image.per_image_standardization`) and to use dropout with variable keep probabilities. .5 after first fully connected layer, and .75 after second, to help with regularization. 
+
+Q: What were the results of any tests that you performed?
+A: I had tried a few test. Dropouts in initial convolution layers. Chaning the learning rate. Chaning EPOCHs. Most of it didn't help with accuricy much. Etc. I guess thats the important part. I didn't have a systematic way to do changes and keep track of their effect. Most of the effort seemed to be in forming a theory, testing it out and then forming another etc.
+
 If an iterative approach was chosen:
 Most of it was about trying different things. Probably the two most
 important decisions were normalization and dropout. Tried a changing a
@@ -117,9 +134,19 @@ significantly better results.
 
 Here are six German traffic signs that I found on the web:
 
-![alt text][image4] ![alt text][image5] ![alt text][image6]
-![alt text][image7] ![alt text][image8] ![alt text][image9]
+![alt text][image4]
+I would have guessed that this stop sign would have been difficult to predict (because of the background being different, and because the model wasn't trained with any kind of screws or other image preprocessing). But model predicted it with high accuracy.
 
+![alt text][image6]
+This one was predicted wrong. It is a surprise. My guess is, the dark sides somehow make model believe its Priority road. 
+
+![alt text][image7]
+![alt text][image8]
+![alt text][image5]
+These 3 images model shouldn't have much problems with. 
+
+![alt text][image9]
+This image is slightly clipped at top and quite close filling the whole image. I would have guessed the model shouldn't have trouble predicting it, but it predicted it wrong. And wasn't sure about the prediction.
 
 #### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
@@ -134,6 +161,7 @@ Here are the results of the prediction:
 | Right of way	  		| Right of way  			 				|
 | Slippery Road			| Pedestrian      							|
 
+Accuracy on these data is low, compared to the test data. The images do go through the same preprocessing. The issue seems to be that there is not enough preprocessing in terms of transforms on the image. Ex, rotate the images a little. Crop out/in a little. I would guess that it would do better with more data (both by preprocessing and more real data)
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
@@ -149,3 +177,5 @@ For the first image, the model is relatively sure that this is a stop sign (prob
 | .97					| Road work											|
 | .99	      			| Right of way					 				|
 | .54				    | Slippery Road      							|
+
+Seems like the model was quite certain about most predictions. Even the wrong ones. Example the wrong Stop sign prediction. Only in case of Slippery road the prediction was not certain. I guess, the model needs more work. Ex, stop sign seems to be classified as priority road. Seems to me, that it has picked sharp cuts on the side as priority road.
